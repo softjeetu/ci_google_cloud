@@ -34,7 +34,7 @@ class Welcome extends CI_Controller {
 			print_r($this->input->post());
 			print_r($_FILES);
 			echo "</pre>";
-			$image_data = $this->cloud_vision->_get_annotate($_FILES['imgInp']['tmp_name']);
+			$image_data = $this->cloud_vision->_get_annotate($_FILES['imgInp']['tmp_name'], $_FILES['imgInp']['name']);
 			die;
 			/*if($_FILES['imgInp']['size'] > 0){
 

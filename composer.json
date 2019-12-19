@@ -12,13 +12,20 @@
 	},
 	"require": {
 		"php": ">=5.3.7",
-		"google/cloud-vision": "^0.24.1"
+		"google/cloud-vision": "^0.24.1",
+		"google/cloud-datastore": "^1.10"
+		
 	},
+	"extra": {
+        "installer-paths": {
+            "application/third_party/google/{$name}": ["vendor/package"]
+        }
+    },
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
 	},
 	"require-dev": {
-		"mikey179/vfsStream": "1.1.*",
+		"mikey179/vfsstream": "1.1.*",
 		"phpunit/phpunit": "4.* || 5.*"
 	}
 }

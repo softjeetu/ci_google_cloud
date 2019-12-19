@@ -8,19 +8,21 @@
  * @category      Cloud vision
  * @author        Jitendra Kumar <softjeetu@gmail.com>
  */
-require_once('google/cloud_vision/autoload.php' );
+require_once(APPPATH .'third_party/google/cloud_vision/autoload.php' );
+require_once(APPPATH .'third_party/google/cloud_datastore/autoload.php' );
 use Google\Cloud\Vision\VisionClient;
+use Google\Cloud\Datastore\DatastoreClient;
 use Google\Cloud\Core\Exception\ServiceException as VisionException;
 
 
 class Cloud_vision
 {
     /**
-     * vision client objectg
+     * vision, datastore client objectg
      *
      * @var string
      **/
-    protected $vision;
+    protected $vision, $datastore;
 	
 	/**
      * account status ('not_activated', etc ...)
@@ -44,6 +46,7 @@ class Cloud_vision
 		
 		#CREATING VISION OBJECT
 		$this->vision = new VisionClient(['keyFile' => json_decode(file_get_contents(base_url('assets/gcv/credentials.json')), true)]);
+		$this->datastore = new DatastoreClient(['keyFile' => json_decode(file_get_contents(base_url('assets/gcv/credentials.json')), true)]);
                 
     }
     
@@ -79,10 +82,37 @@ class Cloud_vision
     {
         return get_instance()->$var;
     }
+	
+	
+	
+	function _store_data($data = array(), $img_name){
+		// Create an entity
+		if(sizeof($data) == 0){
+			return false;
+		}
+		try{
+			$_data = $this->datastore->entity('SearchImage');
+			$_data['img_name'] = $img_name;
+			$_data['img_data'] = $data;
+			$_ins_search_image = $this->datastore->insert($_data);
+			echo "<pre>";
+			print_r($_ins_search_image);die;
 
+			// Update the entity
+			//$bob['email'] = 'bobV2@example.com';
+			//$datastore->update($bob);
+
+			// If you know the ID of the entity, you can look it up
+			//$key = $this->datastore->key('SearchImage', '12345328897844');
+			//$entity = $this->datastore->lookup($key);
+		}
+		catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 
     
-	function _get_annotate($image = false){
+	function _get_annotate($image = false, $img_name){
 			
 		if(!$image){
 			return false;
@@ -101,6 +131,7 @@ class Cloud_vision
 			echo "<pre>";
 			echo '-----------------------------FACES--------------------------------------------';
 			print_r($annotation->faces());
+			$this->_store_data($annotation->faces(), $img_name);die;
 			echo '-----------------------------LANDSMARKS--------------------------------------------';
 			print_r($annotation->landmarks());
 			echo '-----------------------------LOGOS--------------------------------------------';

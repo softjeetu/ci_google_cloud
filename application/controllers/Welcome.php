@@ -19,48 +19,65 @@ class Welcome extends CI_Controller {
 	 * @see https://codeigniter.com/user_guide/general/urls.html
 	 */
 	public function index()
-	{
-		$this->load->view('welcome_message');
+	{		
+		$data['message'] = $this->session->flashdata('error');
+		$data['success_message'] = $this->session->flashdata('success_message');
+		$this->load->view('welcome_message', $data);
 	}
 	
-	public function gcu(){
-		$this->form_validation->set_message('is_natural_no_zero', $this->lang->line('no_zero_required'));
+	
+	
+	public function gcv(){
+		$this->form_validation->set_message('is_natural_no_zero', 'Natural non zero only.');
         $this->form_validation->set_rules('txt', 'File name', 'required|trim|xss_clean|strip_tags');
+		
         if ($this->form_validation->run() == true)
         {
-			$this->load->library("cloud_vision");
-		
-			echo "<pre>";
-			print_r($this->input->post());
-			print_r($_FILES);
-			echo "</pre>";
-			$image_data = $this->cloud_vision->_get_annotate($_FILES['imgInp']['tmp_name'], $_FILES['imgInp']['name']);
-			die;
-			/*if($_FILES['imgInp']['size'] > 0){
+			if($_FILES['imgInp']['size'] > 0){
+				$this->load->library("cloud_vision");		
+				$image_data = $this->cloud_vision->_get_annotate($_FILES['imgInp']['tmp_name'], $_FILES['imgInp']['name']);
+				print_r($image_data);
+			
+			
+				if($_FILES['imgInp']['size'] > 0 && sizeof($image_data)){
 
-				$this->load->library('upload');
+					$this->load->library('upload');
 
-				$config['upload_path'] = 'uploads/gcv';
-				$config['allowed_types'] = 'gif|jpg|png|jpeg'; 
-				#$config['max_size'] = '1024';
-				#$config['max_width'] = '200';
-				#$config['max_height'] = '30';
-				$config['overwrite'] = FALSE; 
+					$config['upload_path'] = 'uploads/gcv';
+					$config['allowed_types'] = 'gif|jpg|png|jpeg'; 
+					#$config['max_size'] = '1024';
+					#$config['max_width'] = '200';
+					#$config['max_height'] = '30';
+					$config['overwrite'] = FALSE;
+					$config['file_name'] = round(microtime(true) * 1000).'_'.$_FILES['imgInp']['name'];				
 
-				$this->upload->initialize($config);
+					$this->upload->initialize($config);
 
-				if(!$this->upload->do_upload('imgInp')){
+					if(!$this->upload->do_upload('imgInp')){
 
-						$error = $this->upload->display_errors();
-						$this->session->set_flashdata('message', $error);
-						redirect("welcome", 'refresh');
-				} 
+							$error = $this->upload->display_errors();
+							$this->session->set_flashdata('message', $error);
+							redirect(base_url(), 'refresh');
+					} 
 
-				$data['gc_image_name'] = $this->upload->file_name;
+					$data['image_name'] = $this->upload->file_name;
+					$data['image_lables'] = json_encode($image_data);
+					
+					$this->db->insert('gcv', $data);
+					$this->session->set_flashdata('success_message', 'Data saved successfully!');
+					redirect(base_url(), 'refresh');
 
-
+				}
 			}
-		*/}
+			else{die('jay');
+				$this->session->set_flashdata('error', "Choose a file to upload!");
+				redirect('welcome', 'refresh');
+			}
+		}
+		else{
+			$this->session->set_flashdata('error', validation_errors());
+			redirect('welcome', 'refresh');
+		}
 		
 	}
 }

@@ -11,6 +11,7 @@
 require_once(APPPATH .'third_party/google/cloud_vision/autoload.php' );
 require_once(APPPATH .'third_party/google/cloud_datastore/autoload.php' );
 use Google\Cloud\Vision\VisionClient;
+use Google\Cloud\Vision\V1\ImageAnnotatorClient;
 use Google\Cloud\Datastore\DatastoreClient;
 use Google\Cloud\Core\Exception\ServiceException as VisionException;
 
@@ -22,7 +23,7 @@ class Cloud_vision
      *
      * @var string
      **/
-    protected $vision, $datastore;
+    protected $vision, $datastore, $imageAnnotator;
 	
 	/**
      * account status ('not_activated', etc ...)
@@ -40,48 +41,16 @@ class Cloud_vision
      **/
     public function __construct()
     {            
-        $this->load->config('config', TRUE);        
+        //$this->load->config('config', TRUE);        
         //$this->load->library('session');
-        $this->load->helper('cookie'); 
+        //$this->load->helper('cookie'); 
 		
 		#CREATING VISION OBJECT
 		$this->vision = new VisionClient(['keyFile' => json_decode(file_get_contents(base_url('assets/gcv/credentials.json')), true)]);
 		$this->datastore = new DatastoreClient(['keyFile' => json_decode(file_get_contents(base_url('assets/gcv/credentials.json')), true)]);
+		$this->imageAnnotator = new ImageAnnotatorClient(['credentials' => FCPATH.'assets/gcv/credentials.json']);
                 
-    }
-    
-
-    /**
-     * __call
-     *
-     * Acts as a simple way to call model methods without loads of stupid alias'
-     *
-     **/
-    public function __call($method, $arguments)
-    {
-           
-        /*if (!method_exists( $this->booking_model, $method) )
-        {
-            throw new Exception('Undefined method Booking::' . $method . '() called');
-        }       
-        return call_user_func_array( array($this->booking_model, $method), $arguments);*/
-    }
-
-    /**
-     * __get
-     *
-     * Enables the use of CI super-global without having to define an extra variable.
-     *
-     * I can't remember where I first saw this, so thank you if you are the original author. -Militis
-     *
-     * @access  public
-     * @param   $var
-     * @return  mixed
-     */
-    public function __get($var)
-    {
-        return get_instance()->$var;
-    }
+    }    
 	
 	
 	
@@ -118,41 +87,28 @@ class Cloud_vision
 			return false;
 		}
 		try {
-			// Annotate an image, detecting faces.
+			// Annotate an image, detecting labels, text, imageProperties.
 			$image = $this->vision->image(
 				fopen($image, 'r'),
 				[
-					'faces','landmarks','logos','labels','text', 'safeSearch', 
-					'imageProperties', 'web'
+					'labels','text','imageProperties'
 				]
 			);
+			
 
-			$annotation = $this->vision->annotate($image);
-			echo "<pre>";
-			echo '-----------------------------FACES--------------------------------------------';
-			print_r($annotation->faces());
-			$this->_store_data($annotation->faces(), $img_name);die;
-			echo '-----------------------------LANDSMARKS--------------------------------------------';
-			print_r($annotation->landmarks());
-			echo '-----------------------------LOGOS--------------------------------------------';
-			print_r($annotation->logos());
-			echo '-----------------------------LABLES--------------------------------------------';
-			print_r($annotation->labels());
-			echo '-----------------------------TEXT--------------------------------------------';
-			print_r($annotation->text());
-			echo '-----------------------------SAFESEARCH--------------------------------------------';
-			print_r($annotation->safeSearch());
-			echo '-----------------------------IMAGE PORPS--------------------------------------------';
-			print_r($annotation->imageProperties());
-			echo '-----------------------------WEB--------------------------------------------';
-			print_r($annotation->web());
-			echo "</pre>";
-			// Determine if the detected faces have headwear.
-			foreach ($annotation->faces() as $key => $face) {
-				if ($face->hasHeadwear()) {
-					echo "Face $key has headwear.\n";
+			$annotation = $this->vision->annotate($image);			
+			
+			$_label_data = [];
+			// Determine the values whose score is greater than 0.9.
+			if(sizeof($annotation->labels()) > 0){
+				foreach ($annotation->labels() as $key => $label) {
+					if ($label->score() >= 0.9) {
+						$_label_data[] = $label->description();					
+					}
 				}
 			}
+			
+			return $_label_data;
 		}
 		catch (VisionException $e) {
 			echo $e->getMessage();

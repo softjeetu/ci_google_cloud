@@ -1,130 +1,89 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?><!DOCTYPE html>
+?>
+
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Google Cloud Vision</title>
-	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-	<style type="text/css">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
 
-	::selection { background-color: #E13300; color: white; }
-	::-moz-selection { background-color: #E13300; color: white; }
+    <title>Google Cloud Vision</title>
 
-	body {
-		background-color: #fff;
-		margin: 40px;
-		font: 13px/20px normal Helvetica, Arial, sans-serif;
-		color: #4F5155;
-	}
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/offcanvas/">
 
-	a {
-		color: #003399;
-		background-color: transparent;
-		font-weight: normal;
-	}
+    <!-- Bootstrap core CSS -->
+    <link href="<?php echo base_url('assets/css/bootstrap.min.css');?>" rel="stylesheet">
 
-	h1 {
-		color: #444;
-		background-color: transparent;
-		border-bottom: 1px solid #D0D0D0;
-		font-size: 19px;
-		font-weight: normal;
-		margin: 0 0 14px 0;
-		padding: 14px 15px 10px 15px;
-	}
+    <!-- Custom styles for this template -->
+    <link href="<?php echo base_url('assets/css/offcanvas.css');?>" rel="stylesheet">
+  </head>
 
-	code {
-		font-family: Consolas, Monaco, Courier New, Courier, monospace;
-		font-size: 12px;
-		background-color: #f9f9f9;
-		border: 1px solid #D0D0D0;
-		color: #002166;
-		display: block;
-		margin: 14px 0 14px 0;
-		padding: 12px 10px 12px 10px;
-	}
+  <body class="bg-light">
 
-	#body {
-		margin: 0 15px 0 15px;
-	}
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+      <a class="navbar-brand mr-auto mr-lg-0" href="#">Google Cloud Vision</a>
+      <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-	p.footer {
-		text-align: right;
-		font-size: 11px;
-		border-top: 1px solid #D0D0D0;
-		line-height: 32px;
-		padding: 0 10px 0 10px;
-		margin: 20px 0 0 0;
-	}
+      <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="<?php echo base_url(); ?>">Home <span class="sr-only">(current)</span></a>
+          </li>
+          
+        </ul>
+		<?php 
+		$attrib = array('class' => 'form-inline my-2 my-lg-0');
+		echo form_open('search', $attrib);?>        
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <?php echo form_close() ?>
+      </div>
+    </nav>    
+    </div>
 
-	#container {
-		margin: 10px;
-		border: 1px solid #D0D0D0;
-		box-shadow: 0 0 8px #D0D0D0;
-	}
-	.btn-file {
-		position: relative;
-		overflow: hidden;
-	}
-	.btn-file input[type=file] {
-		position: absolute;
-		top: 0;
-		right: 0;
-		min-width: 100%;
-		min-height: 100%;
-		font-size: 100px;
-		text-align: right;
-		filter: alpha(opacity=0);
-		opacity: 0;
-		outline: none;
-		background: white;
-		cursor: inherit;
-		display: block;
-	}
+    <main role="main" class="container">
+      <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">        
+        <div class="lh-100">
+          <h6 class="mb-0 text-white lh-100">Upload images</h6>
+          <small><?php echo date('m/d/Y'); ?></small>
+        </div>
+      </div>
 
-	#img-upload{
-		width: 100%;
-	}
-	</style>
-</head>
-<body>
-
-<div id="container">
-	<h1>Google Cloud Vision</h1>
-
-	<div id="body">
-		<p>Derive insights from your images in the cloud or at the edge with AutoML Vision or use pre-trained Vision API models to detect emotion, understand text, and more.</p>
-
-		<p>Store the file name as key and returning JSON into Google Cloud Datastore
-Choose a representation in Google Cloud data store that allows searching images
-with particular objects, like cars, phones etc.</p>
-		
-		
-		<div class="container">
+      <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <div class="container">
+				<div class="col-md-12">
+					<?php if(isset($message) && $message != '') { echo "<div class=\"alert alert-danger\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $message . "</div>"; } ?>
+					<?php if(isset($success_message) && $success_message != '') { echo "<div class=\"alert alert-success\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $success_message . "</div>"; } ?>
+				</div>
 				<?php 
 				$attrib = array('class' => 'form-horizontal');
-				echo form_open_multipart('welcome/gcu', $attrib) ?>
+				echo form_open_multipart('gcv', $attrib) ?>
 				<div class="row">
 					<div class="col-md-6">
 						<div class="form-group">
-							<label>Upload Image</label>
-							<div class="input-group">															
-								<?php echo form_input('txt', '', 'class="form-control" readonly');?>
-								<span class="input-group-btn">
-									<span class="btn btn-default btn-file">
-										Browse… <input type="file" id="imgInp" name="imgInp">
-									</span>
-								</span>
-							</div>							
+							<label>Upload Image</label>							
+							<div class="input-group">						  
+								<div class="custom-file">
+									<input type="hidden" name="txt" id="txt">
+									<input type="file" class="custom-file-input" id="imgInp"
+									  aria-describedby="inputGroupFileAddon01" name="imgInp">
+									<label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+								</div>
+							</div>
 						</div>
+						
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-3">
 						<div class="form-group">
+							
 							<button class="btn btn-warning btn-block " type="submit">
 								Submit <i class="fa fa-arrow-circle-right"></i>
 							</button>
@@ -138,53 +97,54 @@ with particular objects, like cars, phones etc.</p>
 						</div>
 					</div>					
 				</div>
-				<hr>
-				
-				
+				<hr>				
 			<?php echo form_close() ?>
+			
 		</div>
+      </div>
+
+      <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Suggestions</h6>
+        <div class="media text-muted pt-3">
+          <p>Derive insights from your images in the cloud or at the edge with AutoML Vision or use pre-trained Vision API models to detect emotion, understand text, and more.</p>
+
 		
-		
+        </div>
+        <div class="media text-muted pt-3">
+          <p>Store the file name as key and returning JSON into Google Cloud Datastore, Choose a representation in Google Cloud data store that allows searching images with particular objects, like cars, phones etc.</p>
 
-	</div>
-	
-</div>
-<script>
-$(document).ready( function() {
-    	$(document).on('change', '.btn-file :file', function() {
-		var input = $(this),
-			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-		input.trigger('fileselect', [label]);
+        </div>        
+      </div>
+    </main>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="<?php echo base_url('assets/js/jquery-3.3.1.slim.min.js');?>" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="<?php echo base_url("assets/js/jquery-slim.min.js");?>"><\/script>')</script>
+    <script src="<?php echo base_url('assets/js/popper.min.js');?>"></script>
+    <script src="<?php echo base_url('assets/js/bootstrap.min.js');?>"></script>
+    <script src="<?php echo base_url('assets/js/holder.min.js');?>"></script>
+    <script src="<?php echo base_url('assets/js/offcanvas.js')?>"></script>
+	<script>
+		$(document).ready( function() {					
+			function readURL(input) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+					
+					reader.onload = function (e) {
+						$('#img-upload').attr('src', e.target.result);
+						$("#txt").val(input.files[0].name);
+					}
+					
+					reader.readAsDataURL(input.files[0]);
+				}
+			}
+
+			$("#imgInp").change(function(){
+				readURL(this);
+			}); 	
 		});
-
-		$('.btn-file :file').on('fileselect', function(event, label) {
-		    
-		    var input = $(this).parents('.input-group').find(':text'),
-		        log = label;
-		    
-		    if( input.length ) {
-		        input.val(log);
-		    } else {
-		        if( log ) alert(log);
-		    }
-	    
-		});
-		function readURL(input) {
-		    if (input.files && input.files[0]) {
-		        var reader = new FileReader();
-		        
-		        reader.onload = function (e) {
-		            $('#img-upload').attr('src', e.target.result);
-		        }
-		        
-		        reader.readAsDataURL(input.files[0]);
-		    }
-		}
-
-		$("#imgInp").change(function(){
-		    readURL(this);
-		}); 	
-	});
-</script>
-</body>
+		</script>
+  </body>
 </html>

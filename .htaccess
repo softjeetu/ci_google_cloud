@@ -3,9 +3,10 @@ Options -Indexes
 DirectoryIndex index.php index.html
 RewriteEngine on
 #RewriteBase /
-RewriteBase /php/ci_google_cloud
+RewriteBase /php/rnd/mcs
 RewriteCond $1 !^(index\.php|images|robots\.txt)
 RewriteCond $1 !^(index\.php|img|css|js|install|robots\.txt|favicon\.ico|update\.php)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+

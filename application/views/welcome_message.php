@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   <body class="bg-light">
 
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
-      <a class="navbar-brand mr-auto mr-lg-0" href="#">Google Cloud Vision</a>
+      <a class="navbar-brand mr-auto mr-lg-0" href="<?php echo base_url(); ?>">Google Cloud Vision</a>
       <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -38,9 +38,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
           
         </ul>
 		<?php 
-		$attrib = array('class' => 'form-inline my-2 my-lg-0');
-		echo form_open('search', $attrib);?>        
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+		$attrib = array('class' => 'form-inline my-2 my-lg-0', 'method'=>'get');
+		echo form_open('search-result', $attrib);?>        
+          <input class="form-control mr-sm-2" type="text" placeholder="Search Images" aria-label="Search" name="s_query" value="<?php echo (isset($s_query) && !empty($s_query)) ? $s_query : ''; ?>">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         <?php echo form_close() ?>
       </div>
@@ -70,34 +70,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<label>Upload Image</label>							
 							<div class="input-group">						  
 								<div class="custom-file">
-									<input type="hidden" name="txt" id="txt">
-									<input type="file" class="custom-file-input" id="imgInp"
-									  aria-describedby="inputGroupFileAddon01" name="imgInp">
+									<input type="hidden" name="txt" id="txt" value="1">
+									<input type="file" class="custom-file-input" id="inputGroupFile01"
+									  aria-describedby="inputGroupFileAddon01" name="imgInp[]" multiple="true">
 									<label class="custom-file-label" for="inputGroupFile01">Choose file</label>
 								</div>
-							</div>
-						</div>
-						
+							</div>							
+						</div>												
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-3">
-						<div class="form-group">
-							
+						<div class="form-group">							
 							<button class="btn btn-warning btn-block " type="submit">
 								Submit <i class="fa fa-arrow-circle-right"></i>
 							</button>
 						</div>
 					</div>
 				</div>
+				<hr>
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-3">
 						<div class="form-group">							
-							<img id='img-upload'/>
+							<div id="imgNames" class="well well-sm"></div>
 						</div>
-					</div>					
-				</div>
-				<hr>				
+					</div>
+				</div>				
 			<?php echo form_close() ?>
 			
 		</div>
@@ -127,24 +125,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="<?php echo base_url('assets/js/holder.min.js');?>"></script>
     <script src="<?php echo base_url('assets/js/offcanvas.js')?>"></script>
 	<script>
-		$(document).ready( function() {					
-			function readURL(input) {
-				if (input.files && input.files[0]) {
-					var reader = new FileReader();
-					
-					reader.onload = function (e) {
-						$('#img-upload').attr('src', e.target.result);
-						$("#txt").val(input.files[0].name);
-					}
-					
-					reader.readAsDataURL(input.files[0]);
-				}
-			}
-
-			$("#imgInp").change(function(){
-				readURL(this);
-			}); 	
-		});
-		</script>
+        $('#inputGroupFile01').on('change',function(){
+            //get the file name
+            var files = [];
+	        for (var i = 0; i < $(this)[0].files.length; i++) {
+	            files.push($(this)[0].files[i].name);
+	        }	        
+            //replace the "Choose a file" label
+            $(this).next('.custom-file-label').html($(this)[0].files.length + ' Files');
+            $('#imgNames').html(files.join(',<br> '));
+        })
+    </script>
   </body>
 </html>

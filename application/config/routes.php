@@ -54,7 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 $route['gcv'] = 'welcome/gcv';
-$route['search'] = 'welcome/search';
+$route['search-result'] = 'welcome/search';
 
 
 

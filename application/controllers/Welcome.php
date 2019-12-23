@@ -22,6 +22,8 @@ class Welcome extends CI_Controller {
 	{		
 		$data['message'] = $this->session->flashdata('error');
 		$data['success_message'] = $this->session->flashdata('success_message');
+		$_s_param = $this->input->get('s_query');
+		$data['s_query'] = $_s_param;
 		$this->load->view('welcome_message', $data);
 	}
 	
@@ -33,51 +35,97 @@ class Welcome extends CI_Controller {
 		
         if ($this->form_validation->run() == true)
         {
-			if($_FILES['imgInp']['size'] > 0){
-				$this->load->library("cloud_vision");		
-				$image_data = $this->cloud_vision->_get_annotate($_FILES['imgInp']['tmp_name'], $_FILES['imgInp']['name']);
-				print_r($image_data);
-			
-			
-				if($_FILES['imgInp']['size'] > 0 && sizeof($image_data)){
+        	/*echo "<pre>";
+        	print_r($_FILES['imgInp']);
+        	echo "</pre>";die;*/
 
-					$this->load->library('upload');
+        	if(sizeof($_FILES['imgInp']['name']) > 0){
+        		foreach($_FILES['imgInp']['tmp_name'] as $key => $file_tmp_name){
 
-					$config['upload_path'] = 'uploads/gcv';
-					$config['allowed_types'] = 'gif|jpg|png|jpeg'; 
-					#$config['max_size'] = '1024';
-					#$config['max_width'] = '200';
-					#$config['max_height'] = '30';
-					$config['overwrite'] = FALSE;
-					$config['file_name'] = round(microtime(true) * 1000).'_'.$_FILES['imgInp']['name'];				
+        			$_FILES['file']['name'] = $_FILES['imgInp']['name'][$key];
+        			$_FILES['file']['type'] = $_FILES['imgInp']['type'][$key];
+        			$_FILES['file']['tmp_name'] = $_FILES['imgInp']['tmp_name'][$key];
+        			$_FILES['file']['error'] = $_FILES['imgInp']['error'][$key];
+        			$_FILES['file']['size'] = $_FILES['imgInp']['size'][$key];
 
-					$this->upload->initialize($config);
-
-					if(!$this->upload->do_upload('imgInp')){
-
-							$error = $this->upload->display_errors();
-							$this->session->set_flashdata('message', $error);
-							redirect(base_url(), 'refresh');
-					} 
-
-					$data['image_name'] = $this->upload->file_name;
-					$data['image_lables'] = json_encode($image_data);
+					if($_FILES['file']['size'] > 0){
+						#cloud vision api call
+						$this->load->library("cloud_vision");		
+						$image_data = $this->cloud_vision->_get_annotate($_FILES['file']['tmp_name'], $_FILES['file']['name']);
+						/*echo "<pre>";
+						print_r($image_data);die;*/
 					
-					$this->db->insert('gcv', $data);
-					$this->session->set_flashdata('success_message', 'Data saved successfully!');
-					redirect(base_url(), 'refresh');
+					
+						if($_FILES['file']['size'] > 0 && sizeof($image_data)){
 
+							$this->load->library('upload');
+
+							$config['upload_path'] = 'uploads/gcv';
+							$config['allowed_types'] = 'gif|jpg|png|jpeg'; 
+							#$config['max_size'] = '1024';
+							#$config['max_width'] = '200';
+							#$config['max_height'] = '30';
+							$config['overwrite'] = FALSE;
+							$config['file_name'] = $key.round(microtime(true) * 1000).'_'.$_FILES['file']['name'];				
+
+							$this->upload->initialize($config);
+
+							if(!$this->upload->do_upload('file')){
+
+									$error = $this->upload->display_errors();
+									$this->session->set_flashdata('message', $error.' for file name '.$_FILES['file']['name']);
+									#redirect('welcome', 'refresh');
+							} 
+
+							$data['image_name'] = $this->upload->file_name;
+							$data['image_lables'] = json_encode($image_data);
+							
+							$this->db->insert('gcv', $data);
+							
+							$this->session->set_flashdata('success_message', 'Data saved successfully!');							
+
+						}
+					}
+					else{
+						$this->session->set_flashdata('error', "Incorrect File!!");						
+					}
 				}
 			}
-			else{die('jay');
-				$this->session->set_flashdata('error', "Choose a file to upload!");
-				redirect('welcome', 'refresh');
+			else{
+				$this->session->set_flashdata('error', "Choose a file to upload!");				
 			}
 		}
 		else{
-			$this->session->set_flashdata('error', validation_errors());
-			redirect('welcome', 'refresh');
+			$this->session->set_flashdata('error', validation_errors());			
 		}
+		redirect('welcome', 'refresh');
+	}
+
+
+	public function search(){
+		$this->form_validation->set_message('is_natural_no_zero', 'Natural non zero only.');
+        
+		$data['search_result'] = array();
+		$_s_param = $this->input->get('s_query');
+		$data['s_query'] = $_s_param;
+        if (!empty($_s_param))
+        {
+        	
+		    $this->db->where('JSON_SEARCH(image_lables, "all", "%'.ucwords($_s_param).'%") IS NOT NULL');		    
+		    $res = $this->db->get('gcv');
+		    #echo $this->db->last_query();
+		    
+        	if($res->num_rows()){
+        		$data['search_result'] = $res->result_array();
+        	}
+		}
+		else{	
+			$this->session->set_flashdata('error', "Please input search string!!");								
+		}
+
 		
+		$data['message'] = $this->session->flashdata('error');	
+		$data['success_message'] = $this->session->flashdata('success_message');
+		$this->load->view('search_result', $data);
 	}
 }

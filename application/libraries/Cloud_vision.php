@@ -67,13 +67,7 @@ class Cloud_vision
 			echo "<pre>";
 			print_r($_ins_search_image);die;
 
-			// Update the entity
-			//$bob['email'] = 'bobV2@example.com';
-			//$datastore->update($bob);
-
-			// If you know the ID of the entity, you can look it up
-			//$key = $this->datastore->key('SearchImage', '12345328897844');
-			//$entity = $this->datastore->lookup($key);
+			
 		}
 		catch (Exception $e) {
 			echo $e->getMessage();

@@ -36,10 +36,17 @@ class Welcome extends CI_Controller {
         if ($this->form_validation->run() == true)
         {
         	/*echo "<pre>";
-        	print_r($_FILES['imgInp']);
+        	print_r(sizeof(array_filter($_FILES['imgInp']['name'])));
         	echo "</pre>";die;*/
-
-        	if(sizeof($_FILES['imgInp']['name']) > 0){
+			
+			# upload limit 20
+			if(sizeof(array_filter($_FILES['imgInp']['name'])) > 20){
+				$this->session->set_flashdata('error', "You can only upload a maximum of 20 files.");
+				redirect('welcome', 'refresh');
+			}
+			
+			# if no file chosen
+        	if(sizeof(array_filter($_FILES['imgInp']['name'])) > 0){
         		foreach($_FILES['imgInp']['tmp_name'] as $key => $file_tmp_name){
 
         			$_FILES['file']['name'] = $_FILES['imgInp']['name'][$key];

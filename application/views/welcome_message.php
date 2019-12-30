@@ -130,7 +130,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             var files = [];
 	        for (var i = 0; i < $(this)[0].files.length; i++) {
 	            files.push($(this)[0].files[i].name);
-	        }	        
+	        }
+			if(parseInt($(this)[0].files.length) > 20){
+				alert("You can only upload a maximum of 20 files.");
+				$(this).val('');
+				return false;
+			}
             //replace the "Choose a file" label
             $(this).next('.custom-file-label').html($(this)[0].files.length + ' Files');
             $('#imgNames').html(files.join(',<br> '));

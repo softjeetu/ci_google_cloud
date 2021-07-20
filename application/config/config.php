@@ -23,7 +23,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/php/rnd/mcs/';
+#$config['base_url'] = 'http://localhost/projects/rnd/ci_google_cloud/';
+$config['base_url'] = 'http://18.219.14.116/ci/';
 
 /*
 |--------------------------------------------------------------------------
